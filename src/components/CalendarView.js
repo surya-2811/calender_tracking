@@ -1,7 +1,9 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import FullCalendar from '@fullcalendar/react';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import interactionPlugin from '@fullcalendar/interaction';
+import AuthRedirect from '../customHook/AuthRedirect';
 import {
   Modal,
   Box,
@@ -10,42 +12,19 @@ import {
   Grid,
   Typography,
 } from '@mui/material';
+import {
+  fetchEventsRequest,
+  addEvent,
+  updateEvent,
+  deleteEvent,
+} from '../store/action/calendarActions';
+import { useNavigate } from 'react-router-dom';
 
 const CalendarView = () => {
-  const defaultValue = [
-    {
-      id: '1',
-      title: 'Email with Company A',
-      date: '2024-12-01',
-      status: 'completed',
-      details: {
-        name: 'Company A',
-        location: 'New York',
-        linkedIn: 'https://linkedin.com/company-a',
-        emails: 'contact@companya.com',
-        phoneNumbers: '1234567890',
-        comments: 'Discuss contract terms.',
-        periodicity: 'Monthly',
-      },
-    },
-    {
-      id: '2',
-      title: 'Phone Call with Company B',
-      date: '2024-12-05',
-      status: 'due',
-      details: {
-        name: 'Company B',
-        location: 'Los Angeles',
-        linkedIn: 'https://linkedin.com/company-b',
-        emails: 'info@companyb.com',
-        phoneNumbers: '0987654321',
-        comments: 'Follow up on project proposal.',
-        periodicity: 'Bi-weekly',
-      },
-    },
-  ]
-  const [events, setEvents] = useState(defaultValue);
-  
+  AuthRedirect();
+  const dispatch = useDispatch();
+  const events = useSelector((state) => state.calendar.events);
+  const navigate = useNavigate();
   const [openModal, setOpenModal] = useState(false);
   const [selectedDate, setSelectedDate] = useState('');
   const [selectedEvent, setSelectedEvent] = useState(null);
@@ -59,11 +38,17 @@ const CalendarView = () => {
     comments: '',
     periodicity: '',
   });
+
   const [formErrors, setFormErrors] = useState({});
+
+  useEffect(() => {
+    dispatch(fetchEventsRequest
+      ());
+  }, [dispatch]);
 
   const handleDateClick = (info) => {
     setSelectedDate(info.dateStr);
-    setSelectedEvent(null); // Reset selectedEvent for new event
+    setSelectedEvent(null);
     setFormData({
       name: '',
       location: '',
@@ -113,31 +98,24 @@ const CalendarView = () => {
     }
 
     if (selectedEvent) {
-      // Update existing event
-      setEvents((prevEvents) =>
-        prevEvents.map((event) =>
-          event.id === selectedEvent.id
-            ? {
-                ...event,
-                title: formData.name,
-                date: selectedDate,
-                details: formData,
-              }
-            : event
-        )
+      dispatch(
+        updateEvent({
+          ...selectedEvent,
+          title: formData.name,
+          date: selectedDate,
+          details: formData,
+        })
       );
     } else {
-      // Add new event
-      setEvents([
-        ...events,
-        {
-          id: `${Date.now()}`, // Unique ID
+      dispatch(
+        addEvent({
+          id: `${Date.now()}`,
           title: formData.name,
           date: selectedDate,
           status: 'due',
           details: formData,
-        },
-      ]);
+        })
+      );
     }
 
     handleClose();
@@ -145,7 +123,7 @@ const CalendarView = () => {
 
   const handleDelete = () => {
     if (selectedEvent) {
-      setEvents((prevEvents) => prevEvents.filter((event) => event.id !== selectedEvent.id));
+      dispatch(deleteEvent(selectedEvent.id));
     }
     handleClose();
   };
@@ -160,10 +138,40 @@ const CalendarView = () => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
   };
+  const handleSignOut = () => {
+    localStorage.removeItem('authToken');
+    navigate('/');
+  };
 
   return (
     <div className="calendar-view">
+      <div style={{
+        display: "flex",
+        justifyContent: "space-between",
+        alignItems: "center"
+      }}>
       <h1>Calendar View</h1>
+      <Button
+      variant="contained"
+      color="primary"
+      onClick={handleSignOut}
+      sx={{
+        backgroundColor: '#1976d2',
+        color: '#fff',
+        textTransform: 'none',
+        '&:hover': {
+          backgroundColor: '#115293',
+        },
+        padding: '10px 20px',
+        fontSize: '16px',
+        borderRadius: '8px',
+        height: "40px",
+        width: "15W0px"
+      }}
+    >
+      Sign Out
+    </Button>
+    </div>
       <FullCalendar
         plugins={[dayGridPlugin, interactionPlugin]}
         initialView="dayGridMonth"
