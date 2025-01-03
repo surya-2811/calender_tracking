@@ -44,7 +44,7 @@ console.log(events)
 
   useEffect(() => {
     dispatch(fetchEventsRequest());
-  }, []);
+  }, [dispatch]);
 
   const handleDateClick = (info) => {
     setSelectedDate(info.dateStr);

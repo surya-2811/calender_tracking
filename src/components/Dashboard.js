@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 
 const Dashboard = () => {
-  const [companies, setCompanies] = useState([
+  const [companies,] = useState([
     {
       name: 'Company A',
       lastCommunications: [
