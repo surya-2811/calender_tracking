@@ -32,7 +32,7 @@ const fetchEventsApi = () =>
 function* fetchEvents() {
   try {
     const events = yield call(fetchEventsApi);
-    yield put({ type: FETCH_EVENTS_SUCCESS, payload: events });
+    // yield put({ type: FETCH_EVENTS_SUCCESS, payload: events });
   } catch (error) {
     yield put({ type: FETCH_EVENTS_FAILURE, payload: error.message });
   }

@@ -13,7 +13,7 @@ const UserCalendar = () => {
   const dispatch = useDispatch();
   AuthRedirect();
   const events = useSelector((state) => state.calendar.events);
-  console.log(events)
+  console.log(events);
 
   const [openModal, setOpenModal] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState(null);
@@ -43,6 +43,12 @@ const UserCalendar = () => {
       setSelectedEvent({ ...selectedEvent, flag: newFlagValue });
     }
   };
+
+  // Add className to flagged events
+  const modifiedEvents = events.map((event) => ({
+    ...event,
+    className: event.flag ? 'flagged-event' : '', // Add custom class if flagged
+  }));
 
   return (
     <div className="user-calendar-view">
@@ -78,8 +84,9 @@ const UserCalendar = () => {
       <FullCalendar
         plugins={[dayGridPlugin, interactionPlugin]}
         initialView="dayGridMonth"
-        events={events}
+        events={modifiedEvents}
         eventClick={handleEventClick}
+        eventClassNames={(arg) => (arg.event.extendedProps.flag ? 'flagged-event' : '')}
       />
 
       <Modal open={openModal} onClose={handleClose}>
@@ -175,6 +182,16 @@ const UserCalendar = () => {
           )}
         </Box>
       </Modal>
+
+      {/* Add CSS for flagged events */}
+      <style>
+        {`
+          .flagged-event {
+            background-color: #ffcc00 !important; /* Warning color */
+            color: #000 !important;
+          }
+        `}
+      </style>
     </div>
   );
 };

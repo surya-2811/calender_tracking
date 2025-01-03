@@ -44,7 +44,7 @@ console.log(events)
 
   useEffect(() => {
     dispatch(fetchEventsRequest());
-  }, [dispatch]);
+  }, []);
 
   const handleDateClick = (info) => {
     setSelectedDate(info.dateStr);
@@ -80,6 +80,11 @@ console.log(events)
       setOpenModal(true);
     }
   };
+
+  const modifiedEvents = events.map((event) => ({
+    ...event,
+    className: event.flag ? 'flagged-event' : '', // Add custom class if flagged
+  }));
 
   const validateForm = () => {
     const errors = {};
@@ -182,12 +187,10 @@ console.log(events)
       <FullCalendar
         plugins={[dayGridPlugin, interactionPlugin]}
         initialView="dayGridMonth"
-        events={events}
+        events={modifiedEvents}
         dateClick={handleDateClick}
         eventClick={handleEventClick}
-        eventClassNames={(arg) => {
-          return arg.event.extendedProps.flag ? 'event-warning' : 'event-blue';
-        }}
+        eventClassNames={(arg) => (arg.event.extendedProps.flag ? 'flagged-event' : '')}
       />
 
       <Modal open={openModal} onClose={handleClose}>
@@ -304,6 +307,14 @@ console.log(events)
           </Box>
         </Box>
       </Modal>
+      <style>
+        {`
+          .flagged-event {
+            background-color: #ffcc00 !important; /* Warning color */
+            color: #000 !important;
+          }
+        `}
+      </style>
     </div>
   );
 };
