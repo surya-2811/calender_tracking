@@ -5,3 +5,4 @@ export const FETCH_EVENTS_FAILURE = 'FETCH_EVENTS_FAILURE';
 export const ADD_EVENT = 'ADD_EVENT';
 export const UPDATE_EVENT = 'UPDATE_EVENT';
 export const DELETE_EVENT = 'DELETE_EVENT';
+export const TOGGLE_FLAG = "TOGGLE_FLAG"

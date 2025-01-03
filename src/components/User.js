@@ -1,17 +1,19 @@
-import React, { useEffect, useState } from 'react';
-import { useSelector } from 'react-redux';
+import React, { useState } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
 import FullCalendar from '@fullcalendar/react';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import interactionPlugin from '@fullcalendar/interaction';
 import { Modal, Box, Typography, Grid, TextField, Button } from '@mui/material';
+import { toggleFlag } from '../store/action/calendarActions';
 import AuthRedirect from '../customHook/AuthRedirect';
 import { useNavigate } from 'react-router-dom';
 
-
 const UserCalendar = () => {
-    const navigate = useNavigate();
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
   AuthRedirect();
   const events = useSelector((state) => state.calendar.events);
+  console.log(events)
 
   const [openModal, setOpenModal] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState(null);
@@ -28,40 +30,51 @@ const UserCalendar = () => {
     setOpenModal(false);
     setSelectedEvent(null);
   };
+
   const handleSignOut = () => {
     localStorage.removeItem('authToken');
     navigate('/');
   };
 
+  const handleToggleFlag = () => {
+    if (selectedEvent) {
+      const newFlagValue = !selectedEvent.flag;
+      dispatch(toggleFlag(selectedEvent.id, newFlagValue));
+      setSelectedEvent({ ...selectedEvent, flag: newFlagValue });
+    }
+  };
+
   return (
     <div className="user-calendar-view">
-        <div style={{
-        display: "flex",
-        justifyContent: "space-between",
-        alignItems: "center"
-      }}>
-      <h1>Calendar View</h1>
-      <Button
-      variant="contained"
-      color="primary"
-      onClick={handleSignOut}
-      sx={{
-        backgroundColor: '#1976d2',
-        color: '#fff',
-        textTransform: 'none',
-        '&:hover': {
-          backgroundColor: '#115293',
-        },
-        padding: '10px 20px',
-        fontSize: '16px',
-        borderRadius: '8px',
-        height: "40px",
-        width: "15W0px"
-      }}
-    >
-      Sign Out
-    </Button>
-    </div>
+      <div
+        style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+        }}
+      >
+        <h1>Calendar View</h1>
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={handleSignOut}
+          sx={{
+            backgroundColor: '#1976d2',
+            color: '#fff',
+            textTransform: 'none',
+            '&:hover': {
+              backgroundColor: '#115293',
+            },
+            padding: '10px 20px',
+            fontSize: '16px',
+            borderRadius: '8px',
+            height: '40px',
+            width: '150px',
+          }}
+        >
+          Sign Out
+        </Button>
+      </div>
       <FullCalendar
         plugins={[dayGridPlugin, interactionPlugin]}
         initialView="dayGridMonth"
@@ -149,6 +162,15 @@ const UserCalendar = () => {
                   />
                 </Grid>
               </Grid>
+              <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 2 }}>
+                <Button
+                  variant="contained"
+                  color={selectedEvent.flag ? 'secondary' : 'primary'}
+                  onClick={handleToggleFlag}
+                >
+                  {selectedEvent.flag ? 'Remove Flag' : 'Add Flag'}
+                </Button>
+              </Box>
             </>
           )}
         </Box>

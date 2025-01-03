@@ -28,7 +28,7 @@ const CalendarView = () => {
   const [openModal, setOpenModal] = useState(false);
   const [selectedDate, setSelectedDate] = useState('');
   const [selectedEvent, setSelectedEvent] = useState(null);
-
+console.log(events)
   const [formData, setFormData] = useState({
     name: '',
     location: '',
@@ -37,13 +37,13 @@ const CalendarView = () => {
     phoneNumbers: '',
     comments: '',
     periodicity: '',
+    flag: false, // Default value for the new key
   });
 
   const [formErrors, setFormErrors] = useState({});
 
   useEffect(() => {
-    dispatch(fetchEventsRequest
-      ());
+    dispatch(fetchEventsRequest());
   }, [dispatch]);
 
   const handleDateClick = (info) => {
@@ -57,6 +57,7 @@ const CalendarView = () => {
       phoneNumbers: '',
       comments: '',
       periodicity: '',
+      flag: false,
     });
     setOpenModal(true);
   };
@@ -73,6 +74,7 @@ const CalendarView = () => {
         phoneNumbers: event.details.phoneNumbers || '',
         comments: event.details.comments || '',
         periodicity: event.details.periodicity || '',
+        flag: event.flag || false,
       });
       setSelectedDate(event.date);
       setOpenModal(true);
@@ -104,6 +106,7 @@ const CalendarView = () => {
           title: formData.name,
           date: selectedDate,
           details: formData,
+          flag: formData.flag,
         })
       );
     } else {
@@ -114,6 +117,7 @@ const CalendarView = () => {
           date: selectedDate,
           status: 'due',
           details: formData,
+          flag: formData.flag,
         })
       );
     }
@@ -138,6 +142,7 @@ const CalendarView = () => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
   };
+
   const handleSignOut = () => {
     localStorage.removeItem('authToken');
     navigate('/');
@@ -145,39 +150,44 @@ const CalendarView = () => {
 
   return (
     <div className="calendar-view">
-      <div style={{
-        display: "flex",
-        justifyContent: "space-between",
-        alignItems: "center"
-      }}>
-      <h1>Calendar View</h1>
-      <Button
-      variant="contained"
-      color="primary"
-      onClick={handleSignOut}
-      sx={{
-        backgroundColor: '#1976d2',
-        color: '#fff',
-        textTransform: 'none',
-        '&:hover': {
-          backgroundColor: '#115293',
-        },
-        padding: '10px 20px',
-        fontSize: '16px',
-        borderRadius: '8px',
-        height: "40px",
-        width: "15W0px"
-      }}
-    >
-      Sign Out
-    </Button>
-    </div>
+      <div
+        style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+        }}
+      >
+        <h1>Calendar View</h1>
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={handleSignOut}
+          sx={{
+            backgroundColor: '#1976d2',
+            color: '#fff',
+            textTransform: 'none',
+            '&:hover': {
+              backgroundColor: '#115293',
+            },
+            padding: '10px 20px',
+            fontSize: '16px',
+            borderRadius: '8px',
+            height: '40px',
+            width: '150px',
+          }}
+        >
+          Sign Out
+        </Button>
+      </div>
       <FullCalendar
         plugins={[dayGridPlugin, interactionPlugin]}
         initialView="dayGridMonth"
         events={events}
         dateClick={handleDateClick}
         eventClick={handleEventClick}
+        eventClassNames={(arg) => {
+          return arg.event.extendedProps.flag ? 'event-warning' : 'event-blue';
+        }}
       />
 
       <Modal open={openModal} onClose={handleClose}>
