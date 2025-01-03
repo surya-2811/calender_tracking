@@ -1,4 +1,4 @@
-import { call, put, takeEvery } from 'redux-saga/effects';
+import { put, takeEvery } from 'redux-saga/effects';
 import {
   FETCH_EVENTS_REQUEST,
   // FETCH_EVENTS_SUCCESS,
